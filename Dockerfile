@@ -1,23 +1,7 @@
-FROM nvcr.io/nvidia/cuda:13.0.1-devel-ubuntu22.04
+# ardge-labs/llama-cpp-dgx-spark: DGX Spark(ARM64 + SM_121) 전용 pre-built 이미지
+# 직접 빌드 불필요 — pull만으로 사용 가능
+FROM ghcr.io/ardge-labs/llama-cpp-dgx-spark:latest
 
-ENV DEBIAN_FRONTEND=noninteractive
-# SM_121 = GB10 Grace Blackwell (DGX Spark)
-ENV CUDA_DOCKER_ARCH=121
-ENV CUDAARCHS=121
-
-RUN apt-get update && apt-get install -y \
-    git cmake build-essential \
-    ninja-build \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN git clone https://github.com/ggerganov/llama.cpp /llama.cpp
-
-WORKDIR /llama.cpp
-
-RUN cmake -B build \
-    -G Ninja \
-    -DGGML_CUDA=ON \
-    -DCMAKE_CUDA_ARCHITECTURES=121 \
-    -DGGML_CUDA_F16=ON \
-    -DCMAKE_BUILD_TYPE=Release \
-    && cmake --build build -j4
+# 모델은 외부 볼륨으로 마운트
+VOLUME ["/models"]
+EXPOSE 8080

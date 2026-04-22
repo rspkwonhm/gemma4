@@ -11,13 +11,11 @@ if ! docker info &>/dev/null; then
 fi
 # ─────────────────────────────────────────────────────────────────────────────
 
-# NGC 로그인
-# Username: $oauthtoken  ← 이 문자열 그대로 입력
-# Password: <NGC API Key> ← https://ngc.nvidia.com/setup/api-key 에서 발급
-docker login nvcr.io
+IMAGE="ghcr.io/ardge-labs/llama-cpp-dgx-spark:latest"
 
-# ARM64 + CUDA 13 + SM_121 빌드 (~3분 소요)
-docker build -t llama-cpp-dgx .
+echo "=== pre-built 이미지 pull ==="
+docker pull "$IMAGE"
+docker tag "$IMAGE" llama-cpp-dgx
 
-echo "=== 빌드 완료 ==="
+echo "=== 완료 ==="
 docker images llama-cpp-dgx
