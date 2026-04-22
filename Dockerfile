@@ -1,7 +1,32 @@
-# ardge-labs/llama-cpp-dgx-spark: DGX Spark(ARM64 + SM_121) 전용 pre-built 이미지
-# 직접 빌드 불필요 — pull만으로 사용 가능
-FROM ghcr.io/ardge-labs/llama-cpp-dgx-spark:latest
+# Build stage
+FROM nvidia/cuda:13.1.1-devel-ubuntu24.04 AS builder
 
-# 모델은 외부 볼륨으로 마운트
-VOLUME ["/models"]
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    git cmake build-essential curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN git clone https://github.com/ggerganov/llama.cpp /llama.cpp
+
+WORKDIR /llama.cpp
+
+RUN cmake -B build \
+    -DGGML_CUDA=ON \
+    -DGGML_NATIVE=ON \
+    -DLLAMA_CURL=ON \
+    -DCMAKE_CUDA_ARCHITECTURES=121a-real \
+    -DCMAKE_LIBRARY_PATH=/usr/local/cuda-13.1/compat \
+    -DCMAKE_BUILD_TYPE=Release \
+    && cmake --build build --config Release -j$(nproc)
+
+# Runtime stage
+FROM nvidia/cuda:13.1.1-runtime-ubuntu24.04
+
+RUN apt-get update && apt-get install -y curl libcurl4 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /llama.cpp/build/bin/llama-server /usr/local/bin/llama-server
+
 EXPOSE 8080
+ENTRYPOINT ["llama-server"]

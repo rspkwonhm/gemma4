@@ -11,11 +11,8 @@ if ! docker info &>/dev/null; then
 fi
 # ─────────────────────────────────────────────────────────────────────────────
 
-IMAGE="ghcr.io/ardge-labs/llama-cpp-dgx-spark:latest"
-
-echo "=== pre-built 이미지 pull ==="
-docker pull "$IMAGE"
-docker tag "$IMAGE" llama-cpp-dgx
+echo "=== llama.cpp 빌드 (ARM64 + CUDA 13 + SM_121) ==="
+docker build -t llama-cpp-dgx .
 
 echo "=== 완료 ==="
 docker images llama-cpp-dgx
