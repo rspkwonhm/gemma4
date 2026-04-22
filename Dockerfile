@@ -1,5 +1,4 @@
-# Build stage
-FROM nvidia/cuda:13.1.1-devel-ubuntu24.04 AS builder
+FROM nvidia/cuda:13.1.1-devel-ubuntu24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -20,13 +19,5 @@ RUN cmake -B build \
     -DCMAKE_BUILD_TYPE=Release \
     && cmake --build build --config Release -j$(nproc)
 
-# Runtime stage
-FROM nvidia/cuda:13.1.1-runtime-ubuntu24.04
-
-RUN apt-get update && apt-get install -y curl libcurl4 \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY --from=builder /llama.cpp/build/bin/llama-server /usr/local/bin/llama-server
-
 EXPOSE 8080
-ENTRYPOINT ["llama-server"]
+ENTRYPOINT ["/llama.cpp/build/bin/llama-server"]
