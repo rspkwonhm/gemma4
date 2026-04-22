@@ -9,6 +9,7 @@ if ! docker info &>/dev/null; then
   echo "  newgrp docker"
   exit 1
 fi
+docker compose version &>/dev/null || sudo apt-get install -y docker-compose-plugin
 # ─────────────────────────────────────────────────────────────────────────────
 
 echo "=== llama.cpp 빌드 (ARM64 + CUDA 13 + SM_121) ==="
