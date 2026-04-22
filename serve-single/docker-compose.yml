@@ -1,0 +1,17 @@
+services:
+  router:
+    image: llama-cpp-dgx
+    container_name: gemma4-router
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../models:/models:ro
+    command: ["--models-dir", "/models", "--host", "0.0.0.0", "--port", "8080"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
