@@ -19,7 +19,7 @@ from openai import OpenAI
 
 client = OpenAI(
     base_url="http://<DGX_SPARK_IP>:8080/v1",
-    api_key="none",  # 로컬 서버라 불필요
+    api_key="none",
 )
 
 response = client.chat.completions.create(
@@ -47,20 +47,30 @@ console.log(res.choices[0].message.content);
 **직접 대화 (터미널)**
 
 ```bash
-# 서버 실행 후 curl로 한 줄 대화
 curl -s http://localhost:8080/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{"model":"gemma4","messages":[{"role":"user","content":"질문 내용"}]}' \
   | python3 -c "import sys,json; print(json.load(sys.stdin)['choices'][0]['message']['content'])"
 ```
 
-또는 Open WebUI 같은 채팅 UI를 `http://localhost:8080`에 연결해 브라우저에서 대화 가능.
+---
+
+## 모델 구성
+
+4개 모델을 동시에 운용한다. 총 ~44GB로 128GB 통합 메모리에 여유 있게 적재된다.
+
+| 모델 | 포트 | 메모리 | 속도 | 용도 |
+|------|------|--------|------|------|
+| Gemma-4-E2B Q4 | 8082 | ~2GB | 빠름 | 초경량, 테스트 |
+| Gemma-4-E4B Q4 | 8081 | ~4GB | 빠름 | 경량 |
+| Gemma-4-26B MoE Q4 | 8083 | ~18GB | ~69 t/s | 속도 우선 |
+| Gemma-4-31B Q4 | 8080 | ~20GB | ~70 t/s | 품질 우선 |
 
 ---
 
 ## 사전 준비
 
-- [NVIDIA NGC API Key](https://ngc.nvidia.com/setup/api-key) — Docker 이미지 pull용
+- [NVIDIA NGC API Key](https://ngc.nvidia.com/setup/api-key) — Docker 이미지 빌드용 (Username: `$oauthtoken`)
 - [Hugging Face 토큰](https://huggingface.co/settings/tokens) — 모델 다운로드용
 - Gemma 4 약관 동의 — [google/gemma-4-31b-it](https://huggingface.co/google/gemma-4-31b-it)
 
@@ -74,46 +84,46 @@ curl -s http://localhost:8080/v1/chat/completions \
 bash 00_check.sh
 ```
 
-가용 메모리를 읽어 적합한 모델을 자동 추천한다.
-
-| 가용 메모리 | 추천 모델 | 정밀도 | 속도 | 품질 |
-|------------|----------|--------|------|------|
-| ≥ 100GB | Gemma-4-31B Dense | BF16 | 11 t/s | Leaderboard #3 |
-| ≥ 100GB (속도 우선) | Gemma-4-26B-A4B MoE | BF16 | 69 t/s | Leaderboard #6 |
-| ≥ 30GB | Gemma-4-31B Dense | Q4_K_M | ~70 t/s | Leaderboard #3 |
-| ≥ 20GB | Gemma-4-26B-A4B MoE | Q4_K_M | ~69 t/s | Leaderboard #6 |
-
-> DGX Spark 128GB 기준: **일반 사용 → Q4_K_M 31B** (속도·품질 균형), **품질 최우선 → BF16 31B**, **속도 최우선 → BF16 26B MoE**
-
-### 2. 모델 다운로드
+### 2. 모델 다운로드 (4개 전체, 이미 있으면 스킵)
 
 ```bash
 bash 01_download.sh
 ```
 
-기본값: `unsloth/gemma-4-31b-it-GGUF` (Q4_K_M, ~20GB). 스크립트 상단 변수를 수정해 다른 모델로 변경 가능.
-
-### 3. Docker 이미지 빌드
+### 3. llama.cpp Docker 이미지 빌드
 
 ```bash
 bash 02_build.sh
 ```
 
-NGC 베이스 이미지(`nvcr.io/nvidia/cuda:13.0.1`)를 사용해 ARM64 + SM_121용 llama.cpp를 컴파일한다. 약 3분 소요.
+NGC 로그인 필요 (Username: `$oauthtoken`, Password: NGC API Key). 빌드 20~40분 소요.
 
-### 4. 추론 서버 실행
+### 4. 서버 실행
 
 ```bash
-bash 03_serve.sh
+# 전체 동시 실행
+./03_serve.sh all
+
+# 특정 모델만
+./03_serve.sh 31b   # 31B (port 8080)
+./03_serve.sh 26b   # 26B MoE (port 8083)
+./03_serve.sh e4b   # E4B (port 8081)
+./03_serve.sh e2b   # E2B (port 8082)
+
+# 메뉴 선택
+./03_serve.sh
+
+# 전체 종료
+./03_serve.sh stop
 ```
 
-`http://localhost:8080`에 OpenAI 호환 API 서버가 실행된다. 컨텍스트 길이(`CTX`)와 모델 경로는 스크립트 상단에서 조정.
-
-### 5. 동작 확인
+### 5. 전체 응답 비교 테스트
 
 ```bash
 bash 04_test.sh
 ```
+
+실행 중인 모델에만 요청하고, 오프라인 모델은 스킵한다.
 
 ---
 
@@ -122,11 +132,11 @@ bash 04_test.sh
 ```
 gemma4/
 ├── 00_check.sh      # 환경 확인 + 모델 자동 추천
-├── 01_download.sh   # 모델 다운로드 (HF)
+├── 01_download.sh   # 4개 모델 일괄 다운로드
 ├── 02_build.sh      # llama.cpp Docker 이미지 빌드
-├── 03_serve.sh      # 추론 서버 실행 (port 8080)
-├── 04_test.sh       # 동작 확인 (curl)
-├── Dockerfile       # ARM64 + CUDA 13 + SM_121 빌드 정의
+├── 03_serve.sh      # 모델 선택/실행/종료 (멀티 모델)
+├── 04_test.sh       # 전체 모델 응답 비교
+├── Dockerfile       # ARM64 + CUDA 13.1.1 + SM_121a-real
 └── vllm_serve.sh    # 대안: vLLM 멀티 사용자 서빙
 ```
 
@@ -146,5 +156,6 @@ bash vllm_serve.sh
 
 - [shamily/gemma4-llama-dgx-spark](https://github.com/shamily/gemma4-llama-dgx-spark)
 - [NVIDIA DGX Spark llama.cpp 공식 가이드](https://build.nvidia.com/spark/llama-cpp/overview)
-- [Arm 러닝 패스: llama.cpp SM_121 빌드](https://learn.arm.com/learning-paths/laptops-and-desktops/dgx_spark_llamacpp/2_gb10_llamacpp_gpu/)
 - [Ollama segfault 버그 #15318](https://github.com/ollama/ollama/issues/15318)
+- [Arm 러닝 패스: llama.cpp SM_121 빌드](https://learn.arm.com/learning-paths/laptops-and-desktops/dgx_spark_llamacpp/2_gb10_llamacpp_gpu/)
+- [unsloth Gemma 4 GGUF (HF)](https://huggingface.co/unsloth/gemma-4-31B-it-GGUF)
