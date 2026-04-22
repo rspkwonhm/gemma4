@@ -31,7 +31,7 @@ docker run --rm --gpus all \
   -p "${PORT}:${PORT}" \
   -v "${ABS_MODEL_DIR}:/models" \
   llama-cpp-dgx \
-  /app/llama-server \
+  --server \
     -m "/models/${MODEL_BASENAME}" \
     --host 0.0.0.0 \
     --port "${PORT}" \

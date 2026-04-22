@@ -4,7 +4,7 @@ set -euo pipefail
 # 00_check.sh 추천 결과에 따라 MODEL_REPO / MODEL_FILE 변경
 # 기본값: 31B Dense Q4_K_M (DGX Spark 128GB 기준 균형 옵션)
 
-MODEL_REPO="unsloth/gemma-4-31b-it-GGUF"
+MODEL_REPO="unsloth/gemma-4-31B-it-GGUF"
 MODEL_FILE="gemma-4-31b-it-Q4_K_M.gguf"
 LOCAL_DIR="./models/gemma4-31b-gguf"
 
@@ -44,9 +44,7 @@ mkdir -p "${LOCAL_DIR}"
 if [[ -z "${MODEL_FILE}" ]]; then
   hf download "${MODEL_REPO}" --local-dir "${LOCAL_DIR}"
 else
-  hf download "${MODEL_REPO}" \
-    --include "${MODEL_FILE}" \
-    --local-dir "${LOCAL_DIR}"
+  hf download "${MODEL_REPO}" "${MODEL_FILE}" --local-dir "${LOCAL_DIR}"
 fi
 
 echo "다운로드 완료:"
