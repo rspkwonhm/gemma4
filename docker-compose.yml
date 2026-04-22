@@ -6,12 +6,7 @@ services:
       - "8082:8082"
     volumes:
       - ./models/gemma4-e2b:/models:ro
-    command:
-      - -m /models/gemma-4-E2B-it-Q4_K_M.gguf
-      - --host 0.0.0.0
-      - --port 8082
-      - -ngl 999
-      - -c 8192
+    command: ["-m", "/models/gemma-4-E2B-it-Q4_K_M.gguf", "--host", "0.0.0.0", "--port", "8082", "-ngl", "999", "-c", "8192"]
     deploy:
       resources:
         reservations:
@@ -28,12 +23,7 @@ services:
       - "8081:8081"
     volumes:
       - ./models/gemma4-e4b:/models:ro
-    command:
-      - -m /models/gemma-4-E4B-it-Q4_K_M.gguf
-      - --host 0.0.0.0
-      - --port 8081
-      - -ngl 999
-      - -c 8192
+    command: ["-m", "/models/gemma-4-E4B-it-Q4_K_M.gguf", "--host", "0.0.0.0", "--port", "8081", "-ngl", "999", "-c", "8192"]
     deploy:
       resources:
         reservations:
@@ -50,12 +40,7 @@ services:
       - "8083:8083"
     volumes:
       - ./models/gemma4-26b:/models:ro
-    command:
-      - -m /models/gemma-4-26B-A4B-it-UD-Q4_K_M.gguf
-      - --host 0.0.0.0
-      - --port 8083
-      - -ngl 999
-      - -c 8192
+    command: ["-m", "/models/gemma-4-26B-A4B-it-UD-Q4_K_M.gguf", "--host", "0.0.0.0", "--port", "8083", "-ngl", "999", "-c", "8192"]
     deploy:
       resources:
         reservations:
@@ -72,12 +57,7 @@ services:
       - "8080:8080"
     volumes:
       - ./models/gemma4-31b:/models:ro
-    command:
-      - -m /models/gemma-4-31B-it-Q4_K_M.gguf
-      - --host 0.0.0.0
-      - --port 8080
-      - -ngl 999
-      - -c 8192
+    command: ["-m", "/models/gemma-4-31B-it-Q4_K_M.gguf", "--host", "0.0.0.0", "--port", "8080", "-ngl", "999", "-c", "8192"]
     deploy:
       resources:
         reservations:
