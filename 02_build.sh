@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ── dependencies ─────────────────────────────────────────────────────────────
-sudo apt-get install -y docker.io
+command -v docker &>/dev/null || sudo apt-get install -y docker-ce docker-ce-cli
 # ─────────────────────────────────────────────────────────────────────────────
 
 # NGC API Key 필요: https://ngc.nvidia.com/setup/api-key

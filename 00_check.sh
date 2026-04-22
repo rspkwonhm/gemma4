@@ -2,7 +2,8 @@
 set -euo pipefail
 
 # ── dependencies ─────────────────────────────────────────────────────────────
-sudo apt-get install -y curl docker.io
+command -v curl   &>/dev/null || sudo apt-get install -y curl
+command -v docker &>/dev/null || sudo apt-get install -y docker-ce docker-ce-cli
 # ─────────────────────────────────────────────────────────────────────────────
 
 echo "============================================"
