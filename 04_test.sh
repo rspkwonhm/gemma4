@@ -7,15 +7,15 @@ command -v python3 &>/dev/null || sudo apt-get install -y python3
 # ─────────────────────────────────────────────────────────────────────────────
 
 declare -A PORTS=(
-  ["E2B"]=8082
-  ["E4B"]=8081
-  ["26B"]=8083
   ["31B"]=8080
+  ["26B"]=8081
+  ["E4B"]=8082
+  ["E2B"]=8083
 )
 
 PROMPT="한 문장으로 자기소개 해주세요."
 
-for MODEL in E2B E4B 26B 31B; do
+for MODEL in 31B 26B E4B E2B; do
   PORT="${PORTS[$MODEL]}"
   printf "%-5s (:%s) → " "$MODEL" "$PORT"
 

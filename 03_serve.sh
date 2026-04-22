@@ -27,10 +27,10 @@ case "$CMD" in
     docker compose up -d
     echo ""
     echo "포트 현황:"
-    echo "  E2B  → http://localhost:8082"
-    echo "  E4B  → http://localhost:8081"
-    echo "  26B  → http://localhost:8083"
     echo "  31B  → http://localhost:8080"
+    echo "  26B  → http://localhost:8081"
+    echo "  E4B  → http://localhost:8082"
+    echo "  E2B  → http://localhost:8083"
     ;;
 
   stop)
@@ -53,19 +53,19 @@ case "$CMD" in
     echo "================================"
     echo " Gemma 4 모델 선택"
     echo "================================"
-    echo "  1) E2B  ~2GB   port 8082"
-    echo "  2) E4B  ~4GB   port 8081"
-    echo "  3) 26B  ~18GB  port 8083"
-    echo "  4) 31B  ~20GB  port 8080"
+    echo "  1) 31B  ~20GB  port 8080  (품질 최고)"
+    echo "  2) 26B  ~18GB  port 8081  (속도 우선)"
+    echo "  3) E4B  ~5GB   port 8082"
+    echo "  4) E2B  ~3GB   port 8083  (최경량)"
     echo "  5) 전체 동시 실행 (~44GB)"
     echo "  0) 전체 종료"
     echo "================================"
     read -rp "선택 [0-5]: " SEL
     case "$SEL" in
-      1) $0 e2b ;;
-      2) $0 e4b ;;
-      3) $0 26b ;;
-      4) $0 31b ;;
+      1) $0 31b ;;
+      2) $0 26b ;;
+      3) $0 e4b ;;
+      4) $0 e2b ;;
       5) $0 all ;;
       0) $0 stop ;;
       *) echo "잘못된 선택" ; exit 1 ;;
