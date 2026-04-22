@@ -5,7 +5,7 @@ set -euo pipefail
 # 기본값: 31B Dense Q4_K_M (DGX Spark 128GB 기준 균형 옵션)
 
 MODEL_REPO="unsloth/gemma-4-31B-it-GGUF"
-MODEL_FILE="gemma-4-31b-it-Q4_K_M.gguf"
+MODEL_FILE="gemma-4-31B-it-Q4_K_M.gguf"
 LOCAL_DIR="./models/gemma4-31b-gguf"
 
 # ── 대안 옵션 (주석 해제해서 사용) ───────────────────────────────────────────
