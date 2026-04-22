@@ -2,7 +2,8 @@
 set -euo pipefail
 
 # ── dependencies ─────────────────────────────────────────────────────────────
-sudo apt-get install -y curl python3
+command -v curl    &>/dev/null || sudo apt-get install -y curl
+command -v python3 &>/dev/null || sudo apt-get install -y python3
 # ─────────────────────────────────────────────────────────────────────────────
 
 PORT=8080
