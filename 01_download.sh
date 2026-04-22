@@ -19,7 +19,7 @@ hf auth login
 declare -A MODELS=(
   ["gemma4-e2b"]="unsloth/gemma-4-E2B-it-GGUF|gemma-4-E2B-it-Q4_K_M.gguf"
   ["gemma4-e4b"]="unsloth/gemma-4-E4B-it-GGUF|gemma-4-E4B-it-Q4_K_M.gguf"
-  ["gemma4-26b"]="unsloth/gemma-4-26B-A4B-it-GGUF|gemma-4-26B-A4B-it-Q4_K_M.gguf"
+  ["gemma4-26b"]="unsloth/gemma-4-26B-A4B-it-GGUF|gemma-4-26B-A4B-it-UD-Q4_K_M.gguf"
   ["gemma4-31b"]="unsloth/gemma-4-31B-it-GGUF|gemma-4-31B-it-Q4_K_M.gguf"
 )
 # ─────────────────────────────────────────────────────────────────────────────
